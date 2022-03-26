@@ -6,6 +6,7 @@ import {
   addTodo,
   deleteTodoParams,
   getTodosById,
+  updateTodo,
 } from "./todos/todos.controller.js";
 import sequelize from "./utils/db.js";
 import Todo from "./todos/todos.model.js";
@@ -31,8 +32,10 @@ app.post("/api/todos", addTodo);
 
 app.delete("/api/todos/:id", deleteTodoParams);
 
+app.patch("/api/todos/:id", updateTodo);
+
 const startServer = () => {
-  sequelize.sync();
+  sequelize.sync({ force: true });
   sequelize
     .authenticate()
     .then(() => {

@@ -9,12 +9,21 @@ const Todo = sequelize.define(
       autoIncrement: true,
       primaryKey: true,
     },
+    email: {
+      type: DataTypes.STRING,
+      allowNull: false,
+      unique: true,
+      validate: {
+        isEmail: true,
+      },
+    },
     title: {
       type: DataTypes.STRING,
       allowNull: false,
       validate: {
         len: [2, 20],
       },
+      unique: true,
     },
     description: {
       type: DataTypes.STRING,
@@ -26,5 +35,9 @@ const Todo = sequelize.define(
     freezeTableName: true,
   }
 );
+
+// User.create({ username: "JohnDoe", email: "sf", age: "25" }, { raw: true })
+//   .then((user) => console.log(user))
+//   .catch((e) => console.log(e.errors));
 
 export default Todo;

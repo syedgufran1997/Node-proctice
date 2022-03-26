@@ -1,3 +1,4 @@
+import { Op } from "sequelize";
 import Todo from "./todos.model.js";
 
 // update, delete - update, destroy
@@ -38,6 +39,32 @@ export const helloworld = (req, res, next) => {
 };
 
 export const getTodos = (req, res) => {
+  console.log("search", req.query.search);
+
+  if (req.query.search) {
+    return Todo.findAll({
+      where: {
+        [Op.or]: {
+          title: {
+            [Op.substring]: req.query.search,
+          },
+          description: {
+            [Op.substring]: req.query.search,
+          },
+        },
+      },
+    })
+      .then((todos) => {
+        return res.status(200).json(responseBuilder(true, null, { todos }));
+      })
+      .catch((e) => {
+        console.log(e);
+        return res
+          .status(500)
+          .json(responseBuilder(false, "Something went wrong", null));
+      });
+  }
+
   Todo.findAll({ raw: true })
     .then((todos) => {
       return res.status(200).json({
@@ -139,7 +166,14 @@ export const deleteTodoParams = (req, res) => {
   })
     .then((deletedTodo) => {
       console.log("Deleted Todo =>>", deletedTodo);
-      res.status(200).json(responseBuilder(true, null, { todo: deletedTodo }));
+      if (deletedTodo) {
+        res
+          .status(200)
+          .json(responseBuilder(true, null, { todo: deletedTodo }));
+      }
+      return res
+        .status(400)
+        .json(responseBuilder(false, "Todo with id not found", {}));
     })
     .catch((err) =>
       res.status(500).json({
@@ -162,4 +196,26 @@ export const deleteTodoParams = (req, res) => {
   // return res
   //   .status(200)
   //   .json(responseBuilder(true, null, { data: deleteTodos }));
+};
+
+export const updateTodo = (req, res) => {
+  const id = req.params.id;
+
+  const data = req.body;
+
+  Todo.update(data, {
+    where: {
+      id: id,
+    },
+  })
+    .then((todo) => {
+      console.log("patch ==>", todo);
+      if (todo[0]) {
+        return res.status(200).json(responseBuilder(true, null, { todo }));
+      }
+      return res.status(400).json(responseBuilder(false, "Id not found", {}));
+    })
+    .catch((e) =>
+      res.status(500).json(responseBuilder(false, "Something went wrong", null))
+    );
 };
