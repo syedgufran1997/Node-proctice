@@ -4,8 +4,11 @@ import {
   helloworld,
   getTodos,
   addTodo,
-  deleteTodo,
+  deleteTodoParams,
+  getTodosById,
 } from "./todos/todos.controller.js";
+import sequelize from "./utils/db.js";
+import Todo from "./todos/todos.model.js";
 
 const app = express();
 app.use(cors());
@@ -22,11 +25,23 @@ app.get("/", helloworld);
 
 app.get("/api/todos", getTodos);
 
+app.get("/api/todosbyid/:id", getTodosById);
+
 app.post("/api/todos", addTodo);
 
-app.delete("/api/todos", deleteTodo);
+app.delete("/api/todos/:id", deleteTodoParams);
 
-const PORT = 8000;
-app.listen(PORT, () =>
-  console.log(`Server started successfully on port ${PORT} `)
-);
+const startServer = () => {
+  sequelize.sync();
+  sequelize
+    .authenticate()
+    .then(() => {
+      console.log("DB Connected");
+      app.listen(8000, () =>
+        console.log(`Server started successfully on 8000 `)
+      );
+    })
+    .catch((err) => console.log("Failed to connect", err));
+};
+
+startServer();
