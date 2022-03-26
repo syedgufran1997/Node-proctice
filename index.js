@@ -38,7 +38,7 @@ const startServer = () => {
     .then(() => {
       console.log("DB Connected");
       app.listen(8000, () =>
-        console.log(`Server started successfully on 8000 `)
+        console.log(`Server started successfully on 8000`)
       );
     })
     .catch((err) => console.log("Failed to connect", err));
